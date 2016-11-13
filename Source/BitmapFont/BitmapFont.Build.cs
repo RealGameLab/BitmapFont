@@ -41,6 +41,8 @@ public class BitmapFont : ModuleRules
 				"Slate",
 				"SlateCore",
                 "ImageWrapper",
+                "InputCore",
+                "UMG",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
