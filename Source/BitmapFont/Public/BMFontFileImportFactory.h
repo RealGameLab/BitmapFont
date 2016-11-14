@@ -14,7 +14,6 @@ class UBMFontFileImportFactory : public UFactory
 	//~Begin UFactory Interface
 
 private:
-	bool InitBitmapFont(UFont* Font, const TCHAR*& Buffer);
-	UTexture2D* LoadTexture2DFromFile(const FString& FullFilePath, EImageFormat::Type ImageFormat);
-	EImageFormat::Type GetTextureType(const FString& TextureName);
+	bool InitBitmapFont(UObject* InParent, UFont* Font, const TCHAR*& Buffer);
+	UTexture2D* CreateTexture2D(UObject* InParent, const FString &FallPath);
 };

@@ -79,50 +79,15 @@ void SBMFontTextBlock::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(ViewportWidget, SViewport)
 			.EnableGammaCorrection(true)
-		.EnableBlending(true)
-		.ShowEffectWhenDisabled(true)
-		.IgnoreTextureAlpha(false)
+			.EnableBlending(true)
+			.ShowEffectWhenDisabled(true)
+			.IgnoreTextureAlpha(false)
 		];
 
 	ViewportClient = MakeShareable(new FBMFontTextBlockViewportClient());
 	Viewport = MakeShareable(new FSceneViewport(ViewportClient.Get(), ViewportWidget));
 
 	ViewportWidget->SetViewportInterface(Viewport.ToSharedRef());
-}
-
-void SBMFontTextBlock::SetText(const TAttribute<FText>& InText)
-{
-	BoundText = InText;
-}
-
-void SBMFontTextBlock::SetText(const FText& InText)
-{
-	BoundText = InText;
-}
-
-void SBMFontTextBlock::SetFont(const TAttribute<const UFont*>& InFont)
-{
-	Font = InFont;
-}
-
-void SBMFontTextBlock::SetColorAndOpacity(const TAttribute<FSlateColor>& InColorAndOpacity)
-{
-	ColorAndOpacity = InColorAndOpacity;
-}
-
-void SBMFontTextBlock::SetWrapTextAt(const TAttribute<float>& InWrapTextAt)
-{
-	WrapTextAt = InWrapTextAt;
-}
-
-void SBMFontTextBlock::SetAutoWrapText(const TAttribute<bool>& InAutoWrapText)
-{
-	AutoWrapText = InAutoWrapText;
-}
-
-void SBMFontTextBlock::SetMargin(const TAttribute<FMargin>& InMargin)
-{
-	Margin = InMargin;
 }
 
 int32 SBMFontTextBlock::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
@@ -172,14 +137,14 @@ FVector2D SBMFontTextBlock::ComputeDesiredSize(float LayoutScaleMultiplier) cons
 	return WrappingCache.GetWrappedSize() + DrawMargin.GetDesiredSize();
 }
 
-void SBMFontTextBlock::AddReferencedObjects(FReferenceCollector& Collector)
-{
-	const UFont* FontPtr = Font.Get(nullptr);
-	if (FontPtr)
-	{
-		Collector.AddReferencedObject(FontPtr);
-	}
-}
+// void SBMFontTextBlock::AddReferencedObjects(FReferenceCollector& Collector)
+// {
+// 	const UFont* FontPtr = Font.Get(nullptr);
+// 	if (FontPtr)
+// 	{
+// 		Collector.AddReferencedObject(FontPtr);
+// 	}
+// }
 
 void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const UFont* InFont, const float InWrapTextAt)
 {
@@ -220,4 +185,26 @@ void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const
 			}
 		}
 	}
+}
+
+void SBMFontTextBlock::SetJustification(const TAttribute<ETextJustify::Type>& Justification)
+{
+
+}
+
+void SBMFontTextBlock::SetWrappingPolicy(const TAttribute<ETextWrappingPolicy>& WrappingPolicy)
+{
+
+}
+
+void SBMFontTextBlock::SetLineHeightPercentage(const TAttribute<float>& LineHeightPercentage)
+{
+
+}
+
+void SBMFontTextBlock::SetTextShapingMethod(TOptional<ETextShapingMethod>)
+{
+}
+void SBMFontTextBlock::SetTextFlowDirection(TOptional<ETextFlowDirection>)
+{
 }

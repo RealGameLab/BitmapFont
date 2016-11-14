@@ -4,7 +4,7 @@
 
 class FBMFontTextBlockViewportClient;
 
-class SBMFontTextBlock : public SCompoundWidget, public FGCObject
+class SBMFontTextBlock : public SCompoundWidget//, public FGCObject
 {
 	friend class FBMFontTextBlockViewportClient;
 
@@ -20,8 +20,8 @@ public:
 		, _Margin()
 	{}
 
-	/** The text displayed in this text block */
-	SLATE_ATTRIBUTE(FText, Text)
+		/** The text displayed in this text block */
+		SLATE_ATTRIBUTE(FText, Text)
 
 		/** Sets the font used to draw the text */
 		SLATE_ATTRIBUTE(const UFont*, Font)
@@ -46,63 +46,73 @@ public:
 		/** The amount of blank space left around the edges of text area. */
 		SLATE_ATTRIBUTE(FMargin, Margin)
 
-		SLATE_END_ARGS()
+	SLATE_END_ARGS()
 
-		virtual ~SBMFontTextBlock();
+	virtual ~SBMFontTextBlock();
 
-	/**
-	* Construct this widget
-	*
-	* @param	InArgs	The declaration data for this widget
-	*/
 	void Construct(const FArguments& InArgs);
 
-	/**
-	* Gets the text assigned to this text block
-	*
-	* @return	This text block's text string
-	*/
 	const FText& GetText() const
 	{
 		return BoundText.Get();
 	}
 
-	/**
-	* Sets the text for this text block
-	*
-	* @param	InText	The new text to display
-	*/
-	void SetText(const TAttribute<FText>& InText);
-	void SetText(const FText& InText);
+	void SetText(const TAttribute<FText>& InText)
+	{
+		BoundText = InText;
+	}
 
-	/**
-	* Sets the font used to draw the text
-	*
-	* @param	InFont	The new font to use
-	*/
-	void SetFont(const TAttribute<const UFont*>& InFont);
+	void SetText(const FText& InText)
+	{
+		BoundText = InText;
+	}
 
-	/** See ColorAndOpacity attribute */
-	void SetColorAndOpacity(const TAttribute<FSlateColor>& InColorAndOpacity);
+	void SetFont(const TAttribute<const UFont*>& InFont)
+	{
+		Font = InFont;
+	}
 
-	/** See WrapTextAt attribute */
-	void SetWrapTextAt(const TAttribute<float>& InWrapTextAt);
+	void SetColorAndOpacity(const TAttribute<FSlateColor>& InColorAndOpacity)
+	{
+		ColorAndOpacity = InColorAndOpacity;
+	}
 
-	/** See AutoWrapText attribute */
-	void SetAutoWrapText(const TAttribute<bool>& InAutoWrapText);
+	void SetShadowOffset(const TAttribute<FVector2D>& InShadowOffset)
+	{
+		ShadowOffset = InShadowOffset;
+	}
 
-	/** See Margin attribute */
-	void SetMargin(const TAttribute<FMargin>& InMargin);
+	void SetShadowColorAndOpacity(const TAttribute<FLinearColor>& InShadowColorAndOpacity)
+	{
+		ShadowColorAndOpacity = InShadowColorAndOpacity;
+	}
+
+	void SetWrapTextAt(const TAttribute<float>& InWrapTextAt)
+	{
+		WrapTextAt = InWrapTextAt;
+	}
+
+	void SetAutoWrapText(const TAttribute<bool>& InAutoWrapText)
+	{
+		AutoWrapText = InAutoWrapText;
+	}
+
+	void SetMargin(const TAttribute<FMargin>& InMargin)
+	{
+		Margin = InMargin;
+	}
+
+	void SetJustification(const TAttribute<ETextJustify::Type>& Justification);
+	void SetWrappingPolicy(const TAttribute<ETextWrappingPolicy>& WrappingPolicy);
+	void SetLineHeightPercentage(const TAttribute<float>& LineHeightPercentage);
+	void SetTextShapingMethod(TOptional<ETextShapingMethod>);
+	void SetTextFlowDirection(TOptional<ETextFlowDirection>);
 
 	// SWidget interface
 	virtual int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 	virtual void CacheDesiredSize(float LayoutScaleMultiplier) override;
 	virtual FVector2D ComputeDesiredSize(float LayoutScaleMultiplier) const override;
 	// End of SWidget interface
-
-	// FGCObject interface
-	virtual void AddReferencedObjects(FReferenceCollector& Collector) override;
-	// End of FGCObject interface
 
 private:
 	/** Single wrapped line */

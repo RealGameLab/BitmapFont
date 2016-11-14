@@ -1,6 +1,8 @@
 #include "BitmapFontPrivatePCH.h"
 #include "BMFontFileImportFactory.h"
 #include "Editor/UnrealEd/Public/Editor.h"
+#include "Editor/UnrealEd/Classes/Factories/TextureFactory.h"
+#include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
 
 DECLARE_LOG_CATEGORY_CLASS(BMFontFileImportFactory, Verbose, All);
 
@@ -20,7 +22,7 @@ UObject* UBMFontFileImportFactory::FactoryCreateText(UClass* InClass, UObject* I
 	FEditorDelegates::OnAssetPreImport.Broadcast(this, InClass, InParent, InName, Type);
 	UE_LOG(BMFontFileImportFactory, Verbose, TEXT("%s"), *CurrentFilename);
 	UFont* const Font = NewObject<UFont>(InParent, InClass, InName, Flags);
-	if (Font && InitBitmapFont(Font, Buffer))
+	if (Font && InitBitmapFont(InParent, Font, Buffer))
 	{
 		FEditorDelegates::OnAssetPostImport.Broadcast(this, Font);
 		return Font;
@@ -28,7 +30,7 @@ UObject* UBMFontFileImportFactory::FactoryCreateText(UClass* InClass, UObject* I
 	return nullptr;
 }
 
-bool UBMFontFileImportFactory::InitBitmapFont(UFont* Font, const TCHAR*& Buffer)
+bool UBMFontFileImportFactory::InitBitmapFont(UObject* InParent, UFont* Font, const TCHAR*& Buffer)
 {
 	Font->FontCacheType = EFontCacheType::Offline;
 	Font->ImportOptions.bEnableLegacyMode = 0; // ²»¶® lower quality antialiasing and larger glyph bounds£¬ useful in debugging problems
@@ -284,9 +286,8 @@ bool UBMFontFileImportFactory::InitBitmapFont(UFont* Font, const TCHAR*& Buffer)
 	FString FontPath = FPaths::GetPath(CurrentFilename);
 	for (FString Name : TextureFileNames)
 	{
-		UE_LOG(BMFontFileImportFactory, Verbose, TEXT("%s"), *(FontPath + FString("\\") + Name));
 		
-		UTexture2D *Texture = LoadTexture2DFromFile(FontPath + FString("\\") + Name, GetTextureType(Name));
+		UTexture2D *Texture = CreateTexture2D(InParent, FontPath + TEXT("\\") + Name);
 		if (!Texture)
 		{
 			return false;
@@ -296,68 +297,38 @@ bool UBMFontFileImportFactory::InitBitmapFont(UFont* Font, const TCHAR*& Buffer)
 	return true;
 }
 
-UTexture2D* UBMFontFileImportFactory::LoadTexture2DFromFile(const FString& FullFilePath, EImageFormat::Type ImageFormat)
+UTexture2D* UBMFontFileImportFactory::CreateTexture2D(UObject* InParent, const FString &FullFilePath)
 {
-	UTexture2D* LoadedT2D = nullptr;
+	UE_LOG(BMFontFileImportFactory, Verbose, TEXT("%s"), *FullFilePath);
+	FString Extension = FPaths::GetExtension(FullFilePath).ToLower();
+	FString TextureName = FPaths::GetBaseFilename(FullFilePath);
+	FString NewPackageName = FPackageName::GetLongPackagePath(InParent->GetOutermost()->GetName()) + TEXT("/") + TextureName;
+	UPackage* Package = CreatePackage(nullptr, *NewPackageName);
 
-	IImageWrapperModule& ImageWrapperModule = FModuleManager::LoadModuleChecked<IImageWrapperModule>(FName("ImageWrapper"));
-	IImageWrapperPtr ImageWrapper = ImageWrapperModule.CreateImageWrapper(ImageFormat);
-
-	TArray<uint8> RawFileData;
-	if (!FFileHelper::LoadFileToArray(RawFileData, *FullFilePath))
+	TArray<uint8> Buffer;
+	if (!(FFileHelper::LoadFileToArray(Buffer, *FullFilePath) && Buffer.Num() > 0))
 	{
-		return nullptr;
-	}
-
-	if (ImageWrapper.IsValid() && ImageWrapper->SetCompressed(RawFileData.GetData(), RawFileData.Num()))
-	{
-		const TArray<uint8>* UncompressedRGBA = nullptr;
-		if (ImageWrapper->GetRaw(ERGBFormat::RGBA, 8, UncompressedRGBA))
-		{
-			LoadedT2D = UTexture2D::CreateTransient(ImageWrapper->GetWidth(), ImageWrapper->GetHeight(), PF_R8G8B8A8);
-			if (!LoadedT2D)
-			{
-				return nullptr;
-			}
-			void* TextureData = LoadedT2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-			FMemory::Memcpy(TextureData, UncompressedRGBA->GetData(), UncompressedRGBA->Num());
-			LoadedT2D->PlatformData->Mips[0].BulkData.Unlock();
-
-			LoadedT2D->UpdateResource();
-		}
-	}
-	return LoadedT2D;
-}
-
-EImageFormat::Type UBMFontFileImportFactory::GetTextureType(const FString& TextureName)
-{
-	FString Ext = FPaths::GetExtension(TextureName);
-	if (Ext.Equals("png", ESearchCase::IgnoreCase))
-	{
-		return EImageFormat::PNG;
-	}
-	else if (Ext.Equals("jpeg", ESearchCase::IgnoreCase) || Ext.Equals("jpg", ESearchCase::IgnoreCase))
-	{
-		return EImageFormat::JPEG;
-	}
-	else if (Ext.Equals("bmp", ESearchCase::IgnoreCase))
-	{
-		return EImageFormat::BMP;
-	}
-	else if (Ext.Equals("ico", ESearchCase::IgnoreCase))
-	{
-		return EImageFormat::ICO;
-	}
-	else if (Ext.Equals("exr", ESearchCase::IgnoreCase))
-	{
-		return EImageFormat::EXR;
-	}
-	else if (Ext.Equals("icns", ESearchCase::IgnoreCase))
-	{
-		return EImageFormat::ICNS;
+		UE_LOG(BMFontFileImportFactory, Warning, TEXT("Unable to find Texture file %s"), *FullFilePath);
 	}
 	else
 	{
-		return EImageFormat::Invalid;
+		UTexture2D* Texture = nullptr;
+		auto Factory = NewObject<UTextureFactory>();
+		Factory->AddToRoot();
+		Factory->SuppressImportOverwriteDialog();
+		Factory->LODGroup = TEXTUREGROUP_UI;
+
+		const uint8 *PtrBuffer = Buffer.GetData();
+		Texture = (UTexture2D*)Factory->FactoryCreateBinary(UTexture2D::StaticClass(), Package, *TextureName, RF_Standalone | RF_Public, NULL, *Extension, PtrBuffer, PtrBuffer + Buffer.Num(), GWarn);
+		if (Texture != nullptr)
+		{
+			Texture->AssetImportData->Update(FullFilePath);
+			FAssetRegistryModule::AssetCreated(Texture);
+			Package->SetDirtyFlag(true);
+		}
+		Factory->RemoveFromRoot();
+		return Texture;
 	}
+
+	return nullptr;
 }
