@@ -9,7 +9,7 @@ class FBMFontTextBlockViewportClient : public FViewportClient
 public:
 	FBMFontTextBlockViewportClient();
 
-	void PrepareToDraw(FViewport* Viewport, const TArray<FWrappedStringElement> &InText, const UFont *InFont, const FLinearColor &InColor, const FVector2D &InShadowOffset, const FLinearColor &InShadowColor, const FMargin &InMargin, float InScale);
+	void PrepareToDraw(FViewport* Viewport, const TArray<FWrappedStringElement> &InText, const UFont *InFont, const FLinearColor &InColor, const FVector2D &InShadowOffset, const FLinearColor &InShadowColor, bool InOutLine, const FLinearColor &InOutLineColor, const FMargin &InMargin, float InScale);
 
 	virtual void Draw(FViewport* Viewport, FCanvas* Canvas) override;
 
@@ -19,22 +19,27 @@ private:
 	FLinearColor Color;
 	FVector2D ShadowOffset;
 	FLinearColor ShadowColor;
+	bool bOutLine;
+	FLinearColor OutLineColor;
 	FMargin Margin;
 	FVector2D Scale;
 };
 
 FBMFontTextBlockViewportClient::FBMFontTextBlockViewportClient()
 	: Font(nullptr)
+	, bOutLine(false)
 {
 }
 
-void FBMFontTextBlockViewportClient::PrepareToDraw(FViewport* Viewport, const TArray<FWrappedStringElement> &InText, const UFont *InFont, const FLinearColor &InColor, const FVector2D &InShadowOffset, const FLinearColor &InShadowColor, const FMargin &InMargin, float InScale)
+void FBMFontTextBlockViewportClient::PrepareToDraw(FViewport* Viewport, const TArray<FWrappedStringElement> &InText, const UFont *InFont, const FLinearColor &InColor, const FVector2D &InShadowOffset, const FLinearColor &InShadowColor, bool InOutLine, const FLinearColor &InOutLineColor, const FMargin &InMargin, float InScale)
 {
 	Text = InText;
 	Font = InFont;
 	Color = InColor;
 	ShadowColor = InShadowColor;
 	ShadowOffset = InShadowOffset;
+	bOutLine = InOutLine;
+	OutLineColor = InOutLineColor;
 	Margin = InMargin;
 	Scale = FVector2D(InScale, InScale);
 
@@ -56,6 +61,8 @@ void FBMFontTextBlockViewportClient::Draw(FViewport* Viewport, FCanvas* Canvas)
 			TextItem.EnableShadow(ShadowColor, ShadowOffset * Scale);
 			TextItem.BlendMode = SE_BLEND_AlphaBlend;
 			TextItem.Scale = Scale;
+			TextItem.bOutlined = bOutLine;
+			TextItem.OutlineColor = OutLineColor;
 
 			Canvas->DrawItem(TextItem);
 
@@ -106,6 +113,8 @@ void SBMFontTextBlock::Construct(const FArguments& InArgs)
 	ColorAndOpacity = InArgs._ColorAndOpacity;
 	ShadowOffset = InArgs._ShadowOffset;
 	ShadowColorAndOpacity = InArgs._ShadowColorAndOpacity;
+	bOutLine = InArgs._bOutLine;
+	OutLineColorAndOpacity = InArgs._OutLineColorAndOpacity;
 	WrapTextAt = InArgs._WrapTextAt;
 	AutoWrapText = InArgs._AutoWrapText;
 	Margin = InArgs._Margin;
@@ -141,6 +150,8 @@ int32 SBMFontTextBlock::OnPaint(const FPaintArgs& Args, const FGeometry& Allotte
 		ColorAndOpacity.Get(FLinearColor::White).GetColor(InWidgetStyle), 
 		ShadowOffset.Get(FVector2D::ZeroVector),
 		ShadowColorAndOpacity.Get(FLinearColor::Black),
+		bOutLine.Get(false),
+		OutLineColorAndOpacity.Get(FLinearColor::White),
 		Margin.Get(FMargin()), 
 		WrappingCache.LayoutScale);
 
