@@ -13,8 +13,8 @@ public:
 		: _Text(FText::GetEmpty())
 		, _Font(nullptr)
 		, _ColorAndOpacity(FLinearColor::White)
-// 		, _ShadowOffset(FVector2D::ZeroVector)
-// 		, _ShadowColorAndOpacity(FLinearColor::Black)
+		, _ShadowOffset(FVector2D::ZeroVector)
+		, _ShadowColorAndOpacity(FLinearColor::Black)
 		, _WrapTextAt(0.0f)
 		, _AutoWrapText(false)
 		, _Margin()
@@ -29,11 +29,11 @@ public:
 		/** Text color and opacity */
 		SLATE_ATTRIBUTE(FSlateColor, ColorAndOpacity)
 
-// 		/** Drop shadow offset in pixels */
-// 		SLATE_ATTRIBUTE(FVector2D, ShadowOffset)
-// 
-// 		/** Shadow color and opacity */
-// 		SLATE_ATTRIBUTE(FLinearColor, ShadowColorAndOpacity)
+		/** Drop shadow offset in pixels */
+		SLATE_ATTRIBUTE(FVector2D, ShadowOffset)
+
+		/** Shadow color and opacity */
+		SLATE_ATTRIBUTE(FLinearColor, ShadowColorAndOpacity)
 
 		/** Whether text wraps onto a new line when it's length exceeds this width; if this value is zero or negative, no wrapping occurs. */
 		SLATE_ATTRIBUTE(float, WrapTextAt)
@@ -77,15 +77,15 @@ public:
 		ColorAndOpacity = InColorAndOpacity;
 	}
 
-// 	void SetShadowOffset(const TAttribute<FVector2D>& InShadowOffset)
-// 	{
-// 		ShadowOffset = InShadowOffset;
-// 	}
-// 
-// 	void SetShadowColorAndOpacity(const TAttribute<FLinearColor>& InShadowColorAndOpacity)
-// 	{
-// 		ShadowColorAndOpacity = InShadowColorAndOpacity;
-// 	}
+	void SetShadowOffset(const TAttribute<FVector2D>& InShadowOffset)
+	{
+		ShadowOffset = InShadowOffset;
+	}
+
+	void SetShadowColorAndOpacity(const TAttribute<FLinearColor>& InShadowColorAndOpacity)
+	{
+		ShadowColorAndOpacity = InShadowColorAndOpacity;
+	}
 
 	void SetWrapTextAt(const TAttribute<float>& InWrapTextAt)
 	{
@@ -143,11 +143,11 @@ private:
 	/** Text color and opacity */
 	TAttribute<FSlateColor> ColorAndOpacity;
 
-// 	/** Drop shadow offset in pixels */
-// 	TAttribute<FVector2D> ShadowOffset;
-// 
-// 	/** Shadow color and opacity */
-// 	TAttribute<FLinearColor> ShadowColorAndOpacity;
+	/** Drop shadow offset in pixels */
+	TAttribute<FVector2D> ShadowOffset;
+
+	/** Shadow color and opacity */
+	TAttribute<FLinearColor> ShadowColorAndOpacity;
 
 	/** Whether text wraps onto a new line when it's length exceeds this width; if this value is zero or negative, no wrapping occurs. */
 	TAttribute<float> WrapTextAt;
