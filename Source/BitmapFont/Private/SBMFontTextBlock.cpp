@@ -7,55 +7,93 @@
 class FBMFontTextBlockViewportClient : public FViewportClient
 {
 public:
-	FBMFontTextBlockViewportClient()
-		: LinesToDraw()
-		, FontPtr(nullptr)
+	FBMFontTextBlockViewportClient();
+
+	void PrepareToDraw(FViewport* Viewport, const TArray<FWrappedStringElement> &InText, const UFont *InFont, const FLinearColor &InColor, const FMargin &InMargin, float InScale);
+
+	virtual void Draw(FViewport* Viewport, FCanvas* Canvas) override;
+
+private:
+	TArray<FWrappedStringElement> Text;
+	const UFont* Font;
+	FLinearColor Color;
+	// 	FLinearColor ShadowDrawColor;
+	// 	FVector2D ShadowDrawOffset;
+	FMargin Margin;
+	FVector2D Scale;
+};
+
+FBMFontTextBlockViewportClient::FBMFontTextBlockViewportClient()
+	: Font(nullptr)
+{
+}
+
+void FBMFontTextBlockViewportClient::PrepareToDraw(FViewport* Viewport, const TArray<FWrappedStringElement> &InText, const UFont *InFont, const FLinearColor &InColor, const FMargin &InMargin, float InScale)
+{
+	Text = InText;
+	Font = InFont;
+	Color = InColor;
+	// 		ShadowDrawColor = InShadowDrawColor;
+	// 		ShadowDrawOffset = InShadowDrawOffset;
+	Margin = InMargin;
+	Scale = FVector2D(InScale, InScale);
+
+	Viewport->Invalidate();
+	Viewport->InvalidateDisplay();
+}
+
+void FBMFontTextBlockViewportClient::Draw(FViewport* Viewport, FCanvas* Canvas)
+{
+	Canvas->Clear(FLinearColor::Transparent);
+
+	if (Text.Num() > 0 && Font)
 	{
-	}
+		FVector2D CanvasPos = FVector2D(Margin.Left, Margin.Top);
 
-	void PrepareToDraw(FViewport* Viewport, const TArray<SBMFontTextBlock::FWrappedLine>& InLinesToDraw, const UFont* InFontPtr, const FLinearColor& InDrawColor, const FLinearColor& InShadowDrawColor, const FVector2D& InShadowDrawOffset, const FMargin& InDrawMargin)
-	{
-		LinesToDraw = InLinesToDraw;
-		FontPtr = InFontPtr;
-		DrawColor = InDrawColor;
-		ShadowDrawColor = InShadowDrawColor;
-		ShadowDrawOffset = InShadowDrawOffset;
-		DrawMargin = InDrawMargin;
-
-		Viewport->Invalidate();
-		Viewport->InvalidateDisplay();
-	}
-
-	/** FViewportClient interface */
-	virtual void Draw(FViewport* Viewport, FCanvas* Canvas) override
-	{
-		Canvas->Clear(FLinearColor::Transparent);
-
-		if (LinesToDraw.Num() > 0 && FontPtr)
+		for (const FWrappedStringElement& Line : Text)
 		{
-			FVector2D CanvasPos = FVector2D(DrawMargin.Left, DrawMargin.Top);
+			FCanvasTextItem TextItem(CanvasPos, FText::FromString(Line.Value), Font, Color);
+			TextItem.DisableShadow();
+			//TextItem.EnableShadow(ShadowDrawColor, ShadowDrawOffset);
+			TextItem.Scale = Scale;
 
-			for (const SBMFontTextBlock::FWrappedLine& WrappedLine : LinesToDraw)
+			Canvas->DrawItem(TextItem);
+
+			CanvasPos.Y += Line.LineExtent.Y;
+		}
+	}
+}
+
+void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const UFont* InFont, const float InWrapTextAt, const float LayoutScaleMultiplier)
+{
+	bool bTextIsIdentical = TextShot.IdenticalTo(InText) && TextShot.IsDisplayStringEqualTo(InText);
+	if (!bTextIsIdentical || Font != InFont || WrapTextAt != InWrapTextAt || LayoutScale != LayoutScaleMultiplier)
+ 	{
+		TextShot = FTextSnapshot(InText);
+		Font = InFont;
+		WrapTextAt = InWrapTextAt;
+		LayoutScale = LayoutScaleMultiplier;
+
+		WrappedText.Empty();
+		WrappedSize = FVector2D::ZeroVector;
+
+		if (!InText.IsEmpty() && InFont)
+		{
+			if (InWrapTextAt > 0.0f)
 			{
-				FCanvasTextItem TextItem(CanvasPos, WrappedLine.Text, FontPtr, DrawColor);
-				TextItem.EnableShadow(ShadowDrawColor, ShadowDrawOffset);
-				TextItem.BlendMode = SE_BLEND_AlphaComposite;
-
-				Canvas->DrawItem(TextItem);
-
-				CanvasPos.Y += WrappedLine.TextSize.Y;
+				FTextSizingParameters TextSizingParameters(0.0f, 0.0f, InWrapTextAt, 0.0f, InFont);
+				FCanvasWordWrapper Wrapper;
+				UCanvas::WrapString(Wrapper, TextSizingParameters, 0.0f, *InText.ToString(), WrappedText);
+			}
+			else
+			{
+				FTextSizingParameters TextSizingParameters(InFont, LayoutScaleMultiplier, LayoutScaleMultiplier);
+				UCanvas::CanvasStringSize(TextSizingParameters, *InText.ToString());
+				WrappedText.Add(FWrappedStringElement(*InText.ToString(), TextSizingParameters.DrawXL, TextSizingParameters.DrawYL));
 			}
 		}
 	}
-
-private:
-	TArray<SBMFontTextBlock::FWrappedLine> LinesToDraw;
-	const UFont* FontPtr;
-	FLinearColor DrawColor;
-	FLinearColor ShadowDrawColor;
-	FVector2D ShadowDrawOffset;
-	FMargin DrawMargin;
-};
+}
 
 SBMFontTextBlock::~SBMFontTextBlock()
 {
@@ -63,11 +101,11 @@ SBMFontTextBlock::~SBMFontTextBlock()
 
 void SBMFontTextBlock::Construct(const FArguments& InArgs)
 {
-	BoundText = InArgs._Text;
+	Text = InArgs._Text;
 	Font = InArgs._Font;
 	ColorAndOpacity = InArgs._ColorAndOpacity;
-	ShadowOffset = InArgs._ShadowOffset;
-	ShadowColorAndOpacity = InArgs._ShadowColorAndOpacity;
+// 	ShadowOffset = InArgs._ShadowOffset;
+// 	ShadowColorAndOpacity = InArgs._ShadowColorAndOpacity;
 	WrapTextAt = InArgs._WrapTextAt;
 	AutoWrapText = InArgs._AutoWrapText;
 	Margin = InArgs._Margin;
@@ -97,13 +135,12 @@ int32 SBMFontTextBlock::OnPaint(const FPaintArgs& Args, const FGeometry& Allotte
 	const bool bEnabled = ShouldBeEnabled(bParentEnabled);
 	const ESlateDrawEffect::Type DrawEffects = bEnabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;
 
-	const UFont* const FontPtr = Font.Get(nullptr);
-	const FLinearColor& DrawColor = ColorAndOpacity.Get(FLinearColor::White).GetColor(InWidgetStyle);
-	const FLinearColor& ShadowDrawColor = ShadowColorAndOpacity.Get(FLinearColor::Black);
-	const FVector2D& DrawShadowOffset = ShadowOffset.Get(FVector2D::ZeroVector);
-	const FMargin& DrawMargin = Margin.Get(FMargin());
-
-	ViewportClient->PrepareToDraw(Viewport.Get(), WrappingCache.GetWrappedText(), FontPtr, DrawColor, ShadowDrawColor, DrawShadowOffset, DrawMargin);
+	ViewportClient->PrepareToDraw(Viewport.Get(), 
+		WrappingCache.WrappedText, 
+		Font.Get(nullptr), 
+		ColorAndOpacity.Get(FLinearColor::White).GetColor(InWidgetStyle), 
+		Margin.Get(FMargin()), 
+		WrappingCache.LayoutScale);
 
 	LayerId = SCompoundWidget::OnPaint(Args, AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bEnabled);
 
@@ -120,21 +157,16 @@ void SBMFontTextBlock::CacheDesiredSize(float LayoutScaleMultiplier)
 	{
 		WrappingWidth = (WrappingWidth >= 1.0f) ? FMath::Min(WrappingWidth, WidgetCachedSize.X) : WidgetCachedSize.X;
 	}
-
-	const FMargin& DrawMargin = Margin.Get(FMargin());
-	WrappingWidth -= DrawMargin.GetTotalSpaceAlong<Orient_Horizontal>();
-
+	WrappingWidth -= Margin.Get(FMargin()).GetTotalSpaceAlong<Orient_Horizontal>();
 	WrappingWidth = FMath::Max(0.0f, WrappingWidth);
 
-	const FText& TextToDraw = BoundText.Get(FText::GetEmpty());
-	const UFont* const FontPtr = Font.Get(nullptr);
-	WrappingCache.UpdateIfNeeded(TextToDraw, FontPtr, WrappingWidth);
+	WrappingCache.UpdateIfNeeded(Text.Get(FText::GetEmpty()), Font.Get(nullptr), WrappingWidth, LayoutScaleMultiplier);
 }
 
 FVector2D SBMFontTextBlock::ComputeDesiredSize(float LayoutScaleMultiplier) const
 {
 	const FMargin& DrawMargin = Margin.Get(FMargin());
-	return WrappingCache.GetWrappedSize() + DrawMargin.GetDesiredSize();
+	return WrappingCache.WrappedSize + DrawMargin.GetDesiredSize();
 }
 
 // void SBMFontTextBlock::AddReferencedObjects(FReferenceCollector& Collector)
@@ -146,65 +178,26 @@ FVector2D SBMFontTextBlock::ComputeDesiredSize(float LayoutScaleMultiplier) cons
 // 	}
 // }
 
-void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const UFont* InFont, const float InWrapTextAt)
-{
-	const bool bTextIsIdentical = CachedText.IdenticalTo(InText) && CachedText.IsDisplayStringEqualTo(InText);
-	const bool bIsDirty = !bTextIsIdentical || CachedFont != InFont || CachedWrapTextAt != InWrapTextAt;
-	if (bIsDirty)
-	{
-		CachedText = FTextSnapshot(InText);
-		CachedFont = InFont;
-		CachedWrapTextAt = InWrapTextAt;
 
-		WrappedText.Empty();
-		WrappedSize = FVector2D::ZeroVector;
-
-		if (!InText.IsEmpty() && InFont)
-		{
-			const bool bIsWrapping = InWrapTextAt > 0.0f;
-			if (bIsWrapping)
-			{
-// 				FTextSizingParameters TextSizingParameters(0.0f, 0.0f, InWrapTextAt, 0.0f, InFont);
-// 				TArray<FWrappedStringElement> WrappedStringData;
-// 				UCanvas::WrapString(TextSizingParameters, 0.0f, *InText.ToString(), WrappedStringData);
-// 				
-// 				for (const FWrappedStringElement& Entry : WrappedStringData)
-// 				{
-// 					WrappedText.Add(FWrappedLine(FText::FromString(Entry.Value), Entry.LineExtent));
-// 					WrappedSize += Entry.LineExtent;
-// 				}
-			}
-			else
-			{
-				FTextSizingParameters TextSizingParameters(InFont, 1.0f, 1.0f);
-				UCanvas::CanvasStringSize(TextSizingParameters, *InText.ToString());
-
-				const FVector2D LineExtent(TextSizingParameters.DrawXL, TextSizingParameters.DrawYL);
-				WrappedText.Add(FWrappedLine(InText, LineExtent));
-				WrappedSize += LineExtent;
-			}
-		}
-	}
-}
-
-void SBMFontTextBlock::SetJustification(const TAttribute<ETextJustify::Type>& Justification)
-{
-
-}
-
-void SBMFontTextBlock::SetWrappingPolicy(const TAttribute<ETextWrappingPolicy>& WrappingPolicy)
-{
-
-}
-
-void SBMFontTextBlock::SetLineHeightPercentage(const TAttribute<float>& LineHeightPercentage)
-{
-
-}
-
-void SBMFontTextBlock::SetTextShapingMethod(TOptional<ETextShapingMethod>)
-{
-}
-void SBMFontTextBlock::SetTextFlowDirection(TOptional<ETextFlowDirection>)
-{
-}
+// 
+// void SBMFontTextBlock::SetJustification(const TAttribute<ETextJustify::Type>& Justification)
+// {
+// 
+// }
+// 
+// void SBMFontTextBlock::SetWrappingPolicy(const TAttribute<ETextWrappingPolicy>& WrappingPolicy)
+// {
+// 
+// }
+// 
+// void SBMFontTextBlock::SetLineHeightPercentage(const TAttribute<float>& LineHeightPercentage)
+// {
+// 
+// }
+// 
+// void SBMFontTextBlock::SetTextShapingMethod(TOptional<ETextShapingMethod>)
+// {
+// }
+// void SBMFontTextBlock::SetTextFlowDirection(TOptional<ETextFlowDirection>)
+// {
+// }

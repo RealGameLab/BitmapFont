@@ -13,8 +13,8 @@ public:
 		: _Text(FText::GetEmpty())
 		, _Font(nullptr)
 		, _ColorAndOpacity(FLinearColor::White)
-		, _ShadowOffset(FVector2D::ZeroVector)
-		, _ShadowColorAndOpacity(FLinearColor::Black)
+// 		, _ShadowOffset(FVector2D::ZeroVector)
+// 		, _ShadowColorAndOpacity(FLinearColor::Black)
 		, _WrapTextAt(0.0f)
 		, _AutoWrapText(false)
 		, _Margin()
@@ -29,11 +29,11 @@ public:
 		/** Text color and opacity */
 		SLATE_ATTRIBUTE(FSlateColor, ColorAndOpacity)
 
-		/** Drop shadow offset in pixels */
-		SLATE_ATTRIBUTE(FVector2D, ShadowOffset)
-
-		/** Shadow color and opacity */
-		SLATE_ATTRIBUTE(FLinearColor, ShadowColorAndOpacity)
+// 		/** Drop shadow offset in pixels */
+// 		SLATE_ATTRIBUTE(FVector2D, ShadowOffset)
+// 
+// 		/** Shadow color and opacity */
+// 		SLATE_ATTRIBUTE(FLinearColor, ShadowColorAndOpacity)
 
 		/** Whether text wraps onto a new line when it's length exceeds this width; if this value is zero or negative, no wrapping occurs. */
 		SLATE_ATTRIBUTE(float, WrapTextAt)
@@ -54,17 +54,17 @@ public:
 
 	const FText& GetText() const
 	{
-		return BoundText.Get();
+		return Text.Get();
 	}
 
 	void SetText(const TAttribute<FText>& InText)
 	{
-		BoundText = InText;
+		Text = InText;
 	}
 
 	void SetText(const FText& InText)
 	{
-		BoundText = InText;
+		Text = InText;
 	}
 
 	void SetFont(const TAttribute<const UFont*>& InFont)
@@ -77,15 +77,15 @@ public:
 		ColorAndOpacity = InColorAndOpacity;
 	}
 
-	void SetShadowOffset(const TAttribute<FVector2D>& InShadowOffset)
-	{
-		ShadowOffset = InShadowOffset;
-	}
-
-	void SetShadowColorAndOpacity(const TAttribute<FLinearColor>& InShadowColorAndOpacity)
-	{
-		ShadowColorAndOpacity = InShadowColorAndOpacity;
-	}
+// 	void SetShadowOffset(const TAttribute<FVector2D>& InShadowOffset)
+// 	{
+// 		ShadowOffset = InShadowOffset;
+// 	}
+// 
+// 	void SetShadowColorAndOpacity(const TAttribute<FLinearColor>& InShadowColorAndOpacity)
+// 	{
+// 		ShadowColorAndOpacity = InShadowColorAndOpacity;
+// 	}
 
 	void SetWrapTextAt(const TAttribute<float>& InWrapTextAt)
 	{
@@ -102,11 +102,11 @@ public:
 		Margin = InMargin;
 	}
 
-	void SetJustification(const TAttribute<ETextJustify::Type>& Justification);
-	void SetWrappingPolicy(const TAttribute<ETextWrappingPolicy>& WrappingPolicy);
-	void SetLineHeightPercentage(const TAttribute<float>& LineHeightPercentage);
-	void SetTextShapingMethod(TOptional<ETextShapingMethod>);
-	void SetTextFlowDirection(TOptional<ETextFlowDirection>);
+// 	void SetJustification(const TAttribute<ETextJustify::Type>& Justification);
+// 	void SetWrappingPolicy(const TAttribute<ETextWrappingPolicy>& WrappingPolicy);
+// 	void SetLineHeightPercentage(const TAttribute<float>& LineHeightPercentage);
+// 	void SetTextShapingMethod(TOptional<ETextShapingMethod>);
+// 	void SetTextFlowDirection(TOptional<ETextFlowDirection>);
 
 	// SWidget interface
 	virtual int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
@@ -115,55 +115,27 @@ public:
 	// End of SWidget interface
 
 private:
-	/** Single wrapped line */
-	struct FWrappedLine
-	{
-		FWrappedLine(FText InText, FVector2D InTextSize)
-			: Text(InText)
-			, TextSize(InTextSize)
-		{
-		}
-
-		FText Text;
-		FVector2D TextSize;
-	};
-
 	/** Wrapping cache for this text block */
-	class FWrappingCache
+	struct FWrappingCache
 	{
-	public:
 		FWrappingCache()
-			: CachedText()
-			, CachedFont(nullptr)
-			, CachedWrapTextAt(0.0f)
-			, WrappedText()
+			: WrapTextAt(0.0f)
 			, WrappedSize(ForceInitToZero)
 		{
 		}
 
-		void UpdateIfNeeded(const FText& InText, const UFont* InFont, const float InWrapTextAt);
+		void UpdateIfNeeded(const FText& InText, const UFont* InFont, float InWrapTextAt, float LayoutScaleMultiplier);
 
-		const TArray<FWrappedLine>& GetWrappedText() const
-		{
-			return WrappedText;
-		}
-
-		FVector2D GetWrappedSize() const
-		{
-			return WrappedSize;
-		}
-
-	private:
-		FTextSnapshot CachedText;
-		const UFont* CachedFont;
-		float CachedWrapTextAt;
-
-		TArray<FWrappedLine> WrappedText;
+		FTextSnapshot TextShot;
+		const UFont* Font;
+		float LayoutScale;
+		float WrapTextAt;
 		FVector2D WrappedSize;
+		TArray<FWrappedStringElement> WrappedText;
 	};
 
 	/** The text displayed in this text block */
-	TAttribute<FText> BoundText;
+	TAttribute<FText> Text;
 
 	/** The font used to draw the text */
 	TAttribute<const UFont*> Font;
@@ -171,11 +143,11 @@ private:
 	/** Text color and opacity */
 	TAttribute<FSlateColor> ColorAndOpacity;
 
-	/** Drop shadow offset in pixels */
-	TAttribute<FVector2D> ShadowOffset;
-
-	/** Shadow color and opacity */
-	TAttribute<FLinearColor> ShadowColorAndOpacity;
+// 	/** Drop shadow offset in pixels */
+// 	TAttribute<FVector2D> ShadowOffset;
+// 
+// 	/** Shadow color and opacity */
+// 	TAttribute<FLinearColor> ShadowColorAndOpacity;
 
 	/** Whether text wraps onto a new line when it's length exceeds this width; if this value is zero or negative, no wrapping occurs. */
 	TAttribute<float> WrapTextAt;

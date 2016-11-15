@@ -7,6 +7,25 @@ UBMFontTextBlock::UBMFontTextBlock(class FObjectInitializer const &Initializer)
 	
 }
 
+FText UBMFontTextBlock::GetText() const
+{
+	if (MyTextBlock.IsValid())
+	{
+		return MyTextBlock->GetText();
+	}
+
+	return Text;
+}
+
+void UBMFontTextBlock::SetText(FText InText)
+{
+	Text = InText;
+	if (MyTextBlock.IsValid())
+	{
+		MyTextBlock->SetText(Text);
+	}
+}
+
 void UBMFontTextBlock::SetColorAndOpacity(FSlateColor InColorAndOpacity)
 {
 	ColorAndOpacity = InColorAndOpacity;
@@ -33,51 +52,32 @@ void UBMFontTextBlock::SetFont(UFont* InFontInfo)
 	}
 }
 
-void UBMFontTextBlock::SetJustification(ETextJustify::Type InJustification)
-{
-	Justification = InJustification;
-	if (MyTextBlock.IsValid())
-	{
-		MyTextBlock->SetJustification(Justification);
-	}
-}
+// void UBMFontTextBlock::SetJustification(ETextJustify::Type InJustification)
+// {
+// 	Justification = InJustification;
+// 	if (MyTextBlock.IsValid())
+// 	{
+// 		MyTextBlock->SetJustification(Justification);
+// 	}
+// }
 
-FText UBMFontTextBlock::GetText() const
-{
-	if (MyTextBlock.IsValid())
-	{
-		return MyTextBlock->GetText();
-	}
-
-	return Text;
-}
-
-void UBMFontTextBlock::SetText(FText InText)
-{
-	Text = InText;
-	if (MyTextBlock.IsValid())
-	{
-		MyTextBlock->SetText(Text);
-	}
-}
-
-void UBMFontTextBlock::SetShadowColorAndOpacity(FLinearColor InShadowColorAndOpacity)
-{
-	ShadowColorAndOpacity = InShadowColorAndOpacity;
-	if (MyTextBlock.IsValid())
-	{
-		MyTextBlock->SetShadowColorAndOpacity(InShadowColorAndOpacity);
-	}
-}
-
-void UBMFontTextBlock::SetShadowOffset(FVector2D InShadowOffset)
-{
-	ShadowOffset = InShadowOffset;
-	if (MyTextBlock.IsValid())
-	{
-		MyTextBlock->SetShadowOffset(ShadowOffset);
-	}
-}
+// void UBMFontTextBlock::SetShadowOffset(FVector2D InShadowOffset)
+// {
+// 	ShadowOffset = InShadowOffset;
+// 	if (MyTextBlock.IsValid())
+// 	{
+// 		MyTextBlock->SetShadowOffset(ShadowOffset);
+// 	}
+// }
+// 
+// void UBMFontTextBlock::SetShadowColorAndOpacity(FLinearColor InShadowColorAndOpacity)
+// {
+// 	ShadowColorAndOpacity = InShadowColorAndOpacity;
+// 	if (MyTextBlock.IsValid())
+// 	{
+// 		MyTextBlock->SetShadowColorAndOpacity(InShadowColorAndOpacity);
+// 	}
+// }
 
 TSharedRef<SWidget> UBMFontTextBlock::RebuildWidget()
 {
@@ -104,7 +104,7 @@ void UBMFontTextBlock::OnBindingChanged(const FName& Property)
 	{
 		static const FName TextProperty(TEXT("TextDelegate"));
 		static const FName ColorAndOpacityProperty(TEXT("ColorAndOpacityDelegate"));
-		static const FName ShadowColorAndOpacityProperty(TEXT("ShadowColorAndOpacityDelegate"));
+//		static const FName ShadowColorAndOpacityProperty(TEXT("ShadowColorAndOpacityDelegate"));
 
 		if (Property == TextProperty)
 		{
@@ -116,11 +116,11 @@ void UBMFontTextBlock::OnBindingChanged(const FName& Property)
 			TAttribute<FSlateColor> ColorAndOpacityBinding = OPTIONAL_BINDING(FSlateColor, ColorAndOpacity);
 			MyTextBlock->SetColorAndOpacity(ColorAndOpacityBinding);
 		}
-		else if (Property == ShadowColorAndOpacityProperty)
-		{
-			TAttribute<FLinearColor> ShadowColorAndOpacityBinding = OPTIONAL_BINDING(FLinearColor, ShadowColorAndOpacity);
-			MyTextBlock->SetShadowColorAndOpacity(ShadowColorAndOpacityBinding);
-		}
+// 		else if (Property == ShadowColorAndOpacityProperty)
+// 		{
+// 			TAttribute<FLinearColor> ShadowColorAndOpacityBinding = OPTIONAL_BINDING(FLinearColor, ShadowColorAndOpacity);
+// 			MyTextBlock->SetShadowColorAndOpacity(ShadowColorAndOpacityBinding);
+// 		}
 	}
 }
 
@@ -130,15 +130,15 @@ void UBMFontTextBlock::SynchronizeProperties()
 
 	TAttribute<FText> TextBinding = OPTIONAL_BINDING(FText, Text);
 	TAttribute<FSlateColor> ColorAndOpacityBinding = OPTIONAL_BINDING(FSlateColor, ColorAndOpacity);
-	TAttribute<FLinearColor> ShadowColorAndOpacityBinding = OPTIONAL_BINDING(FLinearColor, ShadowColorAndOpacity);
+//	TAttribute<FLinearColor> ShadowColorAndOpacityBinding = OPTIONAL_BINDING(FLinearColor, ShadowColorAndOpacity);
 
 	if (MyTextBlock.IsValid())
 	{
 		MyTextBlock->SetText(TextBinding);
 		MyTextBlock->SetFont(Font);
 		MyTextBlock->SetColorAndOpacity(ColorAndOpacityBinding);
-		MyTextBlock->SetShadowOffset(ShadowOffset);
-		MyTextBlock->SetShadowColorAndOpacity(ShadowColorAndOpacityBinding);
+//		MyTextBlock->SetShadowOffset(ShadowOffset);
+//		MyTextBlock->SetShadowColorAndOpacity(ShadowColorAndOpacityBinding);
 //		MyTextBlock->SetMinDesiredWidth(MinDesiredWidth);
 
 		//Super::SynchronizeTextLayoutProperties(*MyTextBlock);

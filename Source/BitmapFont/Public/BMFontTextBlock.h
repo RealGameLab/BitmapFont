@@ -41,29 +41,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Performance, AdvancedDisplay)
 	bool bWrapWithInvalidationPanel;
 	
+	UFUNCTION(BlueprintCallable, Category = "Widget", meta = (DisplayName = "GetText (Text)"))
+	FText GetText() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Widget", meta = (DisplayName = "SetText (Text)"))
+	void SetText(FText InText);
+
+	UFUNCTION(BlueprintCallable, Category = "Appearance")
+	void SetFont(UFont* InFontInfo);
+
 	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	void SetColorAndOpacity(FSlateColor InColorAndOpacity);
 
 	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	void SetOpacity(float InOpacity);
 
-	UFUNCTION(BlueprintCallable, Category = "Appearance")
-	void SetShadowColorAndOpacity(FLinearColor InShadowColorAndOpacity);
+// 	UFUNCTION(BlueprintCallable, Category = "Appearance")
+// 	void SetShadowColorAndOpacity(FLinearColor InShadowColorAndOpacity);
+// 
+// 	UFUNCTION(BlueprintCallable, Category = "Appearance")
+// 	void SetShadowOffset(FVector2D InShadowOffset);
 
-	UFUNCTION(BlueprintCallable, Category = "Appearance")
-	void SetShadowOffset(FVector2D InShadowOffset);
-
-	UFUNCTION(BlueprintCallable, Category = "Appearance")
-	void SetFont(UFont* InFontInfo);
-
-	UFUNCTION(BlueprintCallable, Category = "Appearance")
-	void SetJustification(ETextJustify::Type InJustification);
-
-	UFUNCTION(BlueprintCallable, Category = "Widget", meta = (DisplayName = "GetText (Text)"))
-	FText GetText() const;
-
-	UFUNCTION(BlueprintCallable, Category = "Widget", meta = (DisplayName = "SetText (Text)"))
-	void SetText(FText InText);
+// 	UFUNCTION(BlueprintCallable, Category = "Appearance")
+// 	void SetJustification(ETextJustify::Type InJustification);
 
 	//~ Begin UWidget Interface
 	virtual void SynchronizeProperties() override;
