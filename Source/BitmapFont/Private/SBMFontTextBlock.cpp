@@ -84,14 +84,22 @@ void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const
 				FTextSizingParameters TextSizingParameters(0.0f, 0.0f, InWrapTextAt, 0.0f, InFont);
 				FCanvasWordWrapper Wrapper;
 				UCanvas::WrapString(Wrapper, TextSizingParameters, 0.0f, *InText.ToString(), WrappedText);
+				WrappedSize.X = InWrapTextAt;
+				for (const FWrappedStringElement &Line : WrappedText)
+				{
+					WrappedSize.Y += Line.LineExtent.Y;
+				}
 			}
 			else
 			{
-				FTextSizingParameters TextSizingParameters(InFont, LayoutScaleMultiplier, LayoutScaleMultiplier);
+				FTextSizingParameters TextSizingParameters(InFont, 1.f, 1.f);
 				UCanvas::CanvasStringSize(TextSizingParameters, *InText.ToString());
-				WrappedText.Add(FWrappedStringElement(*InText.ToString(), TextSizingParameters.DrawXL, TextSizingParameters.DrawYL));
+				FWrappedStringElement Line = FWrappedStringElement(*InText.ToString(), TextSizingParameters.DrawXL, TextSizingParameters.DrawYL);
+				WrappedText.Add(Line);
+				WrappedSize = Line.LineExtent;
 			}
 		}
+		WrappedSize *= LayoutScaleMultiplier;
 	}
 }
 
@@ -163,12 +171,13 @@ void SBMFontTextBlock::CacheDesiredSize(float LayoutScaleMultiplier)
 	WrappingWidth = FMath::Max(0.0f, WrappingWidth);
 
 	WrappingCache.UpdateIfNeeded(Text.Get(FText::GetEmpty()), Font.Get(nullptr), WrappingWidth, LayoutScaleMultiplier);
+	
+	SCompoundWidget::CacheDesiredSize(LayoutScaleMultiplier);
 }
 
 FVector2D SBMFontTextBlock::ComputeDesiredSize(float LayoutScaleMultiplier) const
 {
-	const FMargin& DrawMargin = Margin.Get(FMargin());
-	return WrappingCache.WrappedSize + DrawMargin.GetDesiredSize();
+	return WrappingCache.WrappedSize + Margin.Get(FMargin()).GetDesiredSize();
 }
 
 // void SBMFontTextBlock::AddReferencedObjects(FReferenceCollector& Collector)

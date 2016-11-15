@@ -3,6 +3,8 @@
 #include "Runtime/Slate/Public/Widgets/SInvalidationPanel.h"
 
 UBMFontTextBlock::UBMFontTextBlock(class FObjectInitializer const &Initializer)
+	: Font(nullptr)
+	, MinDesiredWidth(0.f)
 {
 	
 }
