@@ -15,8 +15,6 @@ public:
 		, _ColorAndOpacity(FLinearColor::White)
 		, _ShadowOffset(FVector2D::ZeroVector)
 		, _ShadowColorAndOpacity(FLinearColor::Black)
-		, _bOutLine(false)
-		, _OutLineColorAndOpacity(FLinearColor::White)
 		, _WrapTextAt(0.0f)
 		, _AutoWrapText(false)
 		, _Margin()
@@ -36,10 +34,6 @@ public:
 
 		/** Shadow color and opacity */
 		SLATE_ATTRIBUTE(FLinearColor, ShadowColorAndOpacity)
-
-		SLATE_ATTRIBUTE(bool, bOutLine)
-			
-		SLATE_ATTRIBUTE(FLinearColor, OutLineColorAndOpacity)
 
 		/** Whether text wraps onto a new line when it's length exceeds this width; if this value is zero or negative, no wrapping occurs. */
 		SLATE_ATTRIBUTE(float, WrapTextAt)
@@ -91,16 +85,6 @@ public:
 	void SetShadowColorAndOpacity(const TAttribute<FLinearColor>& InShadowColorAndOpacity)
 	{
 		ShadowColorAndOpacity = InShadowColorAndOpacity;
-	}
-
-	void SetOutLine(bool InOutLine)
-	{
-		bOutLine = InOutLine;
-	}
-
-	void SetOutLineColorAndOpacity(const TAttribute<FLinearColor>& InOutLineColorAndOpacity)
-	{
-		OutLineColorAndOpacity = InOutLineColorAndOpacity;
 	}
 
 	void SetWrapTextAt(const TAttribute<float>& InWrapTextAt)
@@ -164,10 +148,6 @@ private:
 
 	/** Shadow color and opacity */
 	TAttribute<FLinearColor> ShadowColorAndOpacity;
-
-	TAttribute<bool> bOutLine;
-
-	TAttribute<FLinearColor> OutLineColorAndOpacity;
 
 	/** Whether text wraps onto a new line when it's length exceeds this width; if this value is zero or negative, no wrapping occurs. */
 	TAttribute<float> WrapTextAt;

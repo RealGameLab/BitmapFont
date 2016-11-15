@@ -36,12 +36,6 @@ public:
 	FGetLinearColor ShadowColorAndOpacityDelegate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance)
-	bool bOutLine;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance)
-	FLinearColor OutLineColorAndOpacity;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance)
 	float MinDesiredWidth;
 	
 	UFUNCTION(BlueprintCallable, Category = "Widget", meta = (DisplayName = "GetText (Text)"))
@@ -65,11 +59,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	void SetShadowOffset(FVector2D InShadowOffset);
 
-	UFUNCTION(BlueprintCallable, Category = "Appearance")
-	void SetOutLine(bool InOutLine);
-
-	UFUNCTION(BlueprintCallable, Category = "Appearance")
-	void SetOutLineColorAndOpacity(FLinearColor InOutLineColor);
 // 	UFUNCTION(BlueprintCallable, Category = "Appearance")
 // 	void SetJustification(ETextJustify::Type InJustification);
 

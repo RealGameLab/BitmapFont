@@ -3,9 +3,6 @@
 #include "Runtime/Slate/Public/Widgets/SInvalidationPanel.h"
 
 UBMFontTextBlock::UBMFontTextBlock(class FObjectInitializer const &Initializer)
-	: Font(nullptr)
-	, bOutLine(false)
-	, MinDesiredWidth(0.f)
 {
 	
 }
@@ -82,24 +79,6 @@ void UBMFontTextBlock::SetShadowColorAndOpacity(FLinearColor InShadowColorAndOpa
 	}
 }
 
-void UBMFontTextBlock::SetOutLine(bool InOutLine)
-{
-	bOutLine = InOutLine;
-	if (MyTextBlock.IsValid())
-	{
-		MyTextBlock->SetOutLine(InOutLine);
-	}
-}
-
-void UBMFontTextBlock::SetOutLineColorAndOpacity(FLinearColor InOutLineColor)
-{
-	OutLineColorAndOpacity = InOutLineColor;
-	if (MyTextBlock.IsValid())
-	{
-		MyTextBlock->SetOutLineColorAndOpacity(InOutLineColor);
-	}
-}
-
 TSharedRef<SWidget> UBMFontTextBlock::RebuildWidget()
 {
 	MyTextBlock = SNew(SBMFontTextBlock);
@@ -149,8 +128,6 @@ void UBMFontTextBlock::SynchronizeProperties()
 		MyTextBlock->SetColorAndOpacity(ColorAndOpacityBinding);
 		MyTextBlock->SetShadowOffset(ShadowOffset);
 		MyTextBlock->SetShadowColorAndOpacity(ShadowColorAndOpacityBinding);
-		MyTextBlock->SetOutLine(bOutLine);
-		MyTextBlock->SetOutLineColorAndOpacity(OutLineColorAndOpacity);
 //		MyTextBlock->SetMinDesiredWidth(MinDesiredWidth);
 
 		//Super::SynchronizeTextLayoutProperties(*MyTextBlock);
