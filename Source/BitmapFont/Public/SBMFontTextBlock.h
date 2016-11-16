@@ -119,16 +119,16 @@ private:
 	struct FWrappingCache
 	{
 		FWrappingCache()
-			: WrapTextAt(0.0f)
+			: Font(nullptr)
+			, WrapTextAt(0.0f)
 			, WrappedSize(ForceInitToZero)
 		{
 		}
 
-		void UpdateIfNeeded(const FText& InText, const UFont* InFont, float InWrapTextAt, float LayoutScaleMultiplier);
+		void UpdateIfNeeded(const FText& InText, const UFont* InFont, float InWrapTextAt);
 
 		FTextSnapshot TextShot;
 		const UFont* Font;
-		float LayoutScale;
 		float WrapTextAt;
 		FVector2D WrappedSize;
 		TArray<FWrappedStringElement> WrappedText;

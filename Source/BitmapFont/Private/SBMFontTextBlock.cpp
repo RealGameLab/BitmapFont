@@ -64,15 +64,14 @@ void FBMFontTextBlockViewportClient::Draw(FViewport* Viewport, FCanvas* Canvas)
 	}
 }
 
-void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const UFont* InFont, const float InWrapTextAt, const float LayoutScaleMultiplier)
+void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const UFont* InFont, const float InWrapTextAt)
 {
 	bool bTextIsIdentical = TextShot.IdenticalTo(InText) && TextShot.IsDisplayStringEqualTo(InText);
-	if (!bTextIsIdentical || Font != InFont || WrapTextAt != InWrapTextAt || LayoutScale != LayoutScaleMultiplier)
+	if (!bTextIsIdentical || Font != InFont || WrapTextAt != InWrapTextAt)
  	{
 		TextShot = FTextSnapshot(InText);
 		Font = InFont;
 		WrapTextAt = InWrapTextAt;
-		LayoutScale = LayoutScaleMultiplier;
 
 		WrappedText.Empty();
 		WrappedSize = FVector2D::ZeroVector;
@@ -99,7 +98,6 @@ void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const
 				WrappedSize = Line.LineExtent;
 			}
 		}
-		WrappedSize *= LayoutScaleMultiplier;
 	}
 }
 
@@ -150,7 +148,7 @@ int32 SBMFontTextBlock::OnPaint(const FPaintArgs& Args, const FGeometry& Allotte
 		ShadowOffset.Get(FVector2D::ZeroVector),
 		ShadowColorAndOpacity.Get(FLinearColor::Black),
 		Margin.Get(FMargin()), 
-		WrappingCache.LayoutScale);
+		AllottedGeometry.Scale);
 
 	LayerId = SCompoundWidget::OnPaint(Args, AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bEnabled);
 
@@ -170,14 +168,17 @@ void SBMFontTextBlock::CacheDesiredSize(float LayoutScaleMultiplier)
 	WrappingWidth -= Margin.Get(FMargin()).GetTotalSpaceAlong<Orient_Horizontal>();
 	WrappingWidth = FMath::Max(0.0f, WrappingWidth);
 
-	WrappingCache.UpdateIfNeeded(Text.Get(FText::GetEmpty()), Font.Get(nullptr), WrappingWidth, LayoutScaleMultiplier);
+	WrappingCache.UpdateIfNeeded(Text.Get(FText::GetEmpty()), Font.Get(nullptr), WrappingWidth);
 	
 	SCompoundWidget::CacheDesiredSize(LayoutScaleMultiplier);
 }
 
 FVector2D SBMFontTextBlock::ComputeDesiredSize(float LayoutScaleMultiplier) const
 {
-	return WrappingCache.WrappedSize + Margin.Get(FMargin()).GetDesiredSize();
+	FVector2D WrappedSize = WrappingCache.WrappedSize;
+	FVector2D MarginSize = Margin.Get(FMargin()).GetDesiredSize();
+	FVector2D ShadowSize = ShadowOffset.Get(FVector2D::ZeroVector).GetAbs() * LayoutScaleMultiplier;
+	return WrappedSize + MarginSize + ShadowSize;
 }
 
 // void SBMFontTextBlock::AddReferencedObjects(FReferenceCollector& Collector)
