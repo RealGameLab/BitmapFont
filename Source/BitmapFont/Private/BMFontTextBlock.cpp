@@ -5,6 +5,7 @@
 UBMFontTextBlock::UBMFontTextBlock(class FObjectInitializer const &Initializer)
 	: Font(nullptr)
 	, MinDesiredWidth(0.f)
+	, DesiredLineHeight(0.f)
 {
 	
 }
@@ -81,6 +82,33 @@ void UBMFontTextBlock::SetShadowColorAndOpacity(FLinearColor InShadowColorAndOpa
 	}
 }
 
+void UBMFontTextBlock::SetMinDesiredWidth(float InMinDesiredWidth)
+{
+	MinDesiredWidth = InMinDesiredWidth;
+	if (MyTextBlock.IsValid())
+	{
+		MyTextBlock->SetMinDesiredWidth(InMinDesiredWidth);
+	}
+}
+
+void UBMFontTextBlock::SetDesiredLineHeight(float InDesiredLineHeight)
+{
+	DesiredLineHeight = InDesiredLineHeight;
+	if (MyTextBlock.IsValid())
+	{
+		MyTextBlock->SetDesiredLineHeight(InDesiredLineHeight);
+	}
+}
+
+void UBMFontTextBlock::SetJustification(ETextJustify::Type InJustification)
+{
+	Justification = InJustification;
+	if (MyTextBlock.IsValid())
+	{
+		MyTextBlock->SetJustification(InJustification);
+	}
+}
+
 TSharedRef<SWidget> UBMFontTextBlock::RebuildWidget()
 {
 	MyTextBlock = SNew(SBMFontTextBlock);
@@ -130,9 +158,10 @@ void UBMFontTextBlock::SynchronizeProperties()
 		MyTextBlock->SetColorAndOpacity(ColorAndOpacityBinding);
 		MyTextBlock->SetShadowOffset(ShadowOffset);
 		MyTextBlock->SetShadowColorAndOpacity(ShadowColorAndOpacityBinding);
-//		MyTextBlock->SetMinDesiredWidth(MinDesiredWidth);
+		MyTextBlock->SetMinDesiredWidth(MinDesiredWidth);
+		MyTextBlock->SetDesiredLineHeight(DesiredLineHeight);
 
-		//Super::SynchronizeTextLayoutProperties(*MyTextBlock);
+		Super::SynchronizeTextLayoutProperties(*MyTextBlock);
 	}
 }
 

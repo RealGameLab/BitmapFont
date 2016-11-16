@@ -38,6 +38,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance)
 	float MinDesiredWidth;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Appearance)
+	float DesiredLineHeight;
+
 	UFUNCTION(BlueprintCallable, Category = "Widget", meta = (DisplayName = "GetText (Text)"))
 	FText GetText() const;
 
@@ -59,8 +62,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Appearance")
 	void SetShadowOffset(FVector2D InShadowOffset);
 
-// 	UFUNCTION(BlueprintCallable, Category = "Appearance")
-// 	void SetJustification(ETextJustify::Type InJustification);
+	UFUNCTION(BlueprintCallable, Category = "Appearance")
+	void SetMinDesiredWidth(float InMinDesiredWidth);
+
+	UFUNCTION(BlueprintCallable, Category = "Appearance")
+	void SetDesiredLineHeight(float InDesiredLineHeight);
+
+	UFUNCTION(BlueprintCallable, Category = "Appearance")
+	void SetJustification(ETextJustify::Type InJustification);
 
 	//~ Begin UWidget Interface
 	virtual void SynchronizeProperties() override;

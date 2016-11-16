@@ -18,6 +18,8 @@ public:
 		, _WrapTextAt(0.0f)
 		, _AutoWrapText(false)
 		, _Margin()
+		, _MinDesiredWidth(0.f)
+		, _DesiredLineHeight(0.f)
 	{}
 
 		/** The text displayed in this text block */
@@ -46,6 +48,15 @@ public:
 		/** The amount of blank space left around the edges of text area. */
 		SLATE_ATTRIBUTE(FMargin, Margin)
 
+		SLATE_ATTRIBUTE(float, MinDesiredWidth)
+
+		SLATE_ATTRIBUTE(float, DesiredLineHeight)
+
+		SLATE_ATTRIBUTE(ETextWrappingPolicy, WrappingPolicy)
+
+		SLATE_ATTRIBUTE(float, LineHeightPercentage)
+
+		SLATE_ATTRIBUTE(ETextJustify::Type, Justification)
 	SLATE_END_ARGS()
 
 	virtual ~SBMFontTextBlock();
@@ -102,11 +113,37 @@ public:
 		Margin = InMargin;
 	}
 
-// 	void SetJustification(const TAttribute<ETextJustify::Type>& Justification);
-// 	void SetWrappingPolicy(const TAttribute<ETextWrappingPolicy>& WrappingPolicy);
-// 	void SetLineHeightPercentage(const TAttribute<float>& LineHeightPercentage);
-// 	void SetTextShapingMethod(TOptional<ETextShapingMethod>);
-// 	void SetTextFlowDirection(TOptional<ETextFlowDirection>);
+	void SetMinDesiredWidth(const TAttribute<float>& InMinDesiredWidth)
+	{
+		MinDesiredWidth = InMinDesiredWidth;
+	}
+
+	void SetDesiredLineHeight(const TAttribute<float>& InDesiredLineHeight)
+	{
+		DesiredLineHeight = InDesiredLineHeight;
+	}
+
+	void SetWrappingPolicy(const TAttribute<ETextWrappingPolicy>& InWrappingPolicy)
+	{
+		WrappingPolicy = InWrappingPolicy;
+	}
+
+	void SetLineHeightPercentage(const TAttribute<float>& InLineHeightPercentage)
+	{
+		LineHeightPercentage = InLineHeightPercentage;
+	}
+
+	void SetJustification(const TAttribute<ETextJustify::Type>& InJustification)
+	{
+		Justification = InJustification;
+	}
+
+	void SetTextShapingMethod(const TOptional<ETextShapingMethod>& InTextShapingMethod)
+	{
+	}
+	void SetTextFlowDirection(const TOptional<ETextFlowDirection>& InTextFlowDirection)
+	{
+	}
 
 	// SWidget interface
 	virtual int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyClippingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
@@ -122,14 +159,16 @@ private:
 			: Font(nullptr)
 			, WrapTextAt(0.0f)
 			, WrappedSize(ForceInitToZero)
+			, DesiredLineHeight(0.f)
 		{
 		}
 
-		void UpdateIfNeeded(const FText& InText, const UFont* InFont, float InWrapTextAt);
+		void UpdateIfNeeded(const FText& InText, const UFont* InFont, float InWrapTextAt, float InDesiredLineHeight);
 
 		FTextSnapshot TextShot;
 		const UFont* Font;
 		float WrapTextAt;
+		float DesiredLineHeight;
 		FVector2D WrappedSize;
 		TArray<FWrappedStringElement> WrappedText;
 	};
@@ -157,6 +196,16 @@ private:
 
 	/** The amount of blank space left around the edges of text area. */
 	TAttribute<FMargin> Margin;
+
+	TAttribute<float> MinDesiredWidth;
+
+	TAttribute<float> DesiredLineHeight;
+
+	TAttribute<ETextWrappingPolicy> WrappingPolicy;
+
+	TAttribute<float> LineHeightPercentage;
+
+	TAttribute<ETextJustify::Type> Justification;
 
 	/** Viewport client used by this text block */
 	TSharedPtr<FBMFontTextBlockViewportClient> ViewportClient;
