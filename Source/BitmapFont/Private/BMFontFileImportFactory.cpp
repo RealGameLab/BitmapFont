@@ -37,7 +37,7 @@ bool UBMFontFileImportFactory::InitBitmapFont(UObject* InParent, UFont* Font, co
 	Font->IsRemapped = 1;
 
 	TArray<FString> TextureFileNames;
-
+	int32 MaxCharHeight = 1;
 	TArray<FString> Lines;
 	FString(Buffer).ParseIntoArrayLines(Lines);
 	for (FString Line : Lines)
@@ -228,6 +228,7 @@ bool UBMFontFileImportFactory::InitBitmapFont(UObject* InParent, UFont* Font, co
 				else if (KVPair[0].Equals("height"))
 				{
 					Char.VSize = FCString::Atoi(*KVPair[1]);
+					MaxCharHeight = FMath::Max(MaxCharHeight, Char.VSize);
 				}
 				else if (KVPair[0].Equals("xoffset"))
 				{
@@ -282,7 +283,7 @@ bool UBMFontFileImportFactory::InitBitmapFont(UObject* InParent, UFont* Font, co
 			}
 		}
 	}
-
+	Font->MaxCharHeight.Add(MaxCharHeight);
 	FString FontPath = FPaths::GetPath(CurrentFilename);
 	for (FString Name : TextureFileNames)
 	{

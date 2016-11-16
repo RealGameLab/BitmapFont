@@ -48,8 +48,9 @@ void FBMFontTextBlockViewportClient::Draw(FViewport* Viewport, FCanvas* Canvas)
 
 	if (Text.Num() > 0 && Font)
 	{
-		FVector2D CanvasPos = FVector2D(Margin.Left, Margin.Top);
-
+		float PosX = Margin.Left + ShadowOffset.X < 0 ? -ShadowOffset.X : 0;
+		float PosY = Margin.Top + ShadowOffset.Y < 0 ? -ShadowOffset.Y : 0;
+		FVector2D CanvasPos = FVector2D(PosX, PosY);
 		for (const FWrappedStringElement& Line : Text)
 		{
 			FCanvasTextItem TextItem(CanvasPos, FText::FromString(Line.Value), Font, Color);
