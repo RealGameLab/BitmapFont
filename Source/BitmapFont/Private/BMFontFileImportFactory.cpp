@@ -1,7 +1,5 @@
 #include "BitmapFontPrivatePCH.h"
 #include "BMFontFileImportFactory.h"
-#include "Editor/UnrealEd/Public/Editor.h"
-#include "Editor/UnrealEd/Classes/Factories/TextureFactory.h"
 #include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
 
 DECLARE_LOG_CATEGORY_CLASS(BMFontFileImportFactory, Verbose, All);
@@ -22,7 +20,8 @@ UObject* UBMFontFileImportFactory::FactoryCreateText(UClass* InClass, UObject* I
 	FEditorDelegates::OnAssetPreImport.Broadcast(this, InClass, InParent, InName, Type);
 	UE_LOG(BMFontFileImportFactory, Verbose, TEXT("%s"), *CurrentFilename);
 	UFont* const Font = NewObject<UFont>(InParent, InClass, InName, Flags);
-	if (Font && InitBitmapFont(InParent, Font, Buffer))
+	FString NewPackagePath = FPackageName::GetLongPackagePath(InParent->GetOutermost()->GetName());
+	if (Font && ImportBitmapFont(Font, Buffer, NewPackagePath, CurrentFilename))
 	{
 		FEditorDelegates::OnAssetPostImport.Broadcast(this, Font);
 		return Font;
@@ -30,11 +29,15 @@ UObject* UBMFontFileImportFactory::FactoryCreateText(UClass* InClass, UObject* I
 	return nullptr;
 }
 
-bool UBMFontFileImportFactory::InitBitmapFont(UObject* InParent, UFont* Font, const TCHAR*& Buffer)
+bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer, const FString &PackagePath, const FString &FileName)
 {
 	Font->FontCacheType = EFontCacheType::Offline;
-	Font->ImportOptions.bEnableLegacyMode = 0; // ²»¶® lower quality antialiasing and larger glyph bounds£¬ useful in debugging problems
 	Font->IsRemapped = 1;
+	Font->ImportOptions.CharsFilePath = FileName;
+	Font->ImportOptions.bEnableLegacyMode = 0; // ²»¶® lower quality antialiasing and larger glyph bounds£¬ useful in debugging problems
+	Font->Characters.Empty();
+	Font->CharRemap.Empty();
+	Font->Textures.Empty();
 
 	TArray<FString> TextureFileNames;
 	int32 MaxCharHeight = 1;
@@ -284,11 +287,10 @@ bool UBMFontFileImportFactory::InitBitmapFont(UObject* InParent, UFont* Font, co
 		}
 	}
 	Font->MaxCharHeight.Add(MaxCharHeight);
-	FString FontPath = FPaths::GetPath(CurrentFilename);
+	FString FilePath = FPaths::GetPath(FileName);
 	for (FString Name : TextureFileNames)
 	{
-		
-		UTexture2D *Texture = CreateTexture2D(InParent, FontPath + TEXT("\\") + Name);
+		UTexture2D *Texture = CreateTexture2D(FilePath + TEXT("\\") + Name, PackagePath);
 		if (!Texture)
 		{
 			return false;
@@ -298,12 +300,12 @@ bool UBMFontFileImportFactory::InitBitmapFont(UObject* InParent, UFont* Font, co
 	return true;
 }
 
-UTexture2D* UBMFontFileImportFactory::CreateTexture2D(UObject* InParent, const FString &FullFilePath)
+UTexture2D* UBMFontFileImportFactory::CreateTexture2D(const FString &FullFilePath, const FString &PackagePath)
 {
 	UE_LOG(BMFontFileImportFactory, Verbose, TEXT("%s"), *FullFilePath);
 	FString Extension = FPaths::GetExtension(FullFilePath).ToLower();
 	FString TextureName = FPaths::GetBaseFilename(FullFilePath);
-	FString NewPackageName = FPackageName::GetLongPackagePath(InParent->GetOutermost()->GetName()) + TEXT("/") + TextureName;
+	FString NewPackageName = PackagePath + TEXT("/") + TextureName;
 	UPackage* Package = CreatePackage(nullptr, *NewPackageName);
 
 	TArray<uint8> Buffer;
@@ -332,4 +334,41 @@ UTexture2D* UBMFontFileImportFactory::CreateTexture2D(UObject* InParent, const F
 	}
 
 	return nullptr;
+}
+
+bool UBMFontFileImportFactory::CanReimport(UObject* Obj, TArray<FString>& OutFilenames)
+{
+	UFont* Font = Cast<UFont>(Obj);
+	if (Font && Font->FontCacheType == EFontCacheType::Offline)
+	{
+		OutFilenames.Add(Font->ImportOptions.CharsFilePath);
+		return true;
+	}
+	return false;
+}
+
+void UBMFontFileImportFactory::SetReimportPaths(UObject* Obj, const TArray<FString>& NewReimportPaths)
+{
+	UFont* Font = Cast<UFont>(Obj);
+	if (Font && NewReimportPaths.Num() > 0)
+	{
+		Font->ImportOptions.CharsFilePath = NewReimportPaths[0];
+	}
+}
+
+EReimportResult::Type UBMFontFileImportFactory::Reimport(UObject* Obj)
+{
+	UFont* Font = Cast<UFont>(Obj);
+	if (Font)
+	{
+		const FString &FilePath = Font->ImportOptions.CharsFilePath;
+		FString Buffer;
+		if (FFileHelper::LoadFileToString(Buffer, *FilePath))
+		{
+			FString PackagePath = FPackageName::GetLongPackagePath(Font->GetOutermost()->GetName());
+			ImportBitmapFont(Font, *Buffer, PackagePath, FilePath);
+			return EReimportResult::Succeeded;
+		}
+	}
+	return EReimportResult::Failed;
 }
