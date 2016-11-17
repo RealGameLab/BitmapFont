@@ -160,15 +160,17 @@ private:
 			, WrapTextAt(0.0f)
 			, WrappedSize(ForceInitToZero)
 			, DesiredLineHeight(0.f)
+			, MinDesiredWidth(0.f)
 		{
 		}
 
-		void UpdateIfNeeded(const FText& InText, const UFont* InFont, float InWrapTextAt, float InDesiredLineHeight);
+		void UpdateIfNeeded(const FText& InText, const UFont* InFont, float InWrapTextAt, float InMinDesiredWidth, float InDesiredLineHeight);
 
 		FTextSnapshot TextShot;
 		const UFont* Font;
 		float WrapTextAt;
 		float DesiredLineHeight;
+		float MinDesiredWidth;
 		FVector2D WrappedSize;
 		TArray<FWrappedStringElement> WrappedText;
 	};

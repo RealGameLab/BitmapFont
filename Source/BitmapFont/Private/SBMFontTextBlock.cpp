@@ -69,16 +69,16 @@ void FBMFontTextBlockViewportClient::Draw(FViewport* Viewport, FCanvas* Canvas)
 	}
 }
 
-void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const UFont* InFont, float InWrapTextAt, float InDesiredLineHeight)
+void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const UFont* InFont, float InWrapTextAt, float InMinDesiredWidth, float InDesiredLineHeight)
 {
 	bool bTextIsIdentical = TextShot.IdenticalTo(InText) && TextShot.IsDisplayStringEqualTo(InText);
-	if (!bTextIsIdentical || Font != InFont || WrapTextAt != InWrapTextAt || DesiredLineHeight != InDesiredLineHeight)
+	if (!bTextIsIdentical || Font != InFont || WrapTextAt != InWrapTextAt || MinDesiredWidth != InMinDesiredWidth || DesiredLineHeight != InDesiredLineHeight)
  	{
 		TextShot = FTextSnapshot(InText);
 		Font = InFont;
 		WrapTextAt = InWrapTextAt;
 		DesiredLineHeight = InDesiredLineHeight;
-
+		MinDesiredWidth = InMinDesiredWidth;
 		WrappedText.Empty();
 		WrappedSize = FVector2D::ZeroVector;
 
@@ -102,7 +102,8 @@ void SBMFontTextBlock::FWrappingCache::UpdateIfNeeded(const FText& InText, const
 				UCanvas::CanvasStringSize(TextSizingParameters, *InText.ToString());
 				FWrappedStringElement Line = FWrappedStringElement(*InText.ToString(), TextSizingParameters.DrawXL, TextSizingParameters.DrawYL);
 				WrappedText.Add(Line);
-				WrappedSize = Line.LineExtent;
+				WrappedSize.X = FMath::Max(Line.LineExtent.X, MinDesiredWidth);
+				WrappedSize.Y = FMath::Max(Line.LineExtent.Y, DesiredLineHeight);
 			}
 		}
 	}
@@ -177,7 +178,7 @@ void SBMFontTextBlock::CacheDesiredSize(float LayoutScaleMultiplier)
 	WrappingWidth -= Margin.Get(FMargin()).GetTotalSpaceAlong<Orient_Horizontal>();
 	WrappingWidth = FMath::Max(0.0f, WrappingWidth);
 
-	WrappingCache.UpdateIfNeeded(Text.Get(FText::GetEmpty()), Font.Get(nullptr), WrappingWidth, DesiredLineHeight.Get(0.f));
+	WrappingCache.UpdateIfNeeded(Text.Get(FText::GetEmpty()), Font.Get(nullptr), WrappingWidth, MinDesiredWidth.Get(0.f), DesiredLineHeight.Get(0.f));
 	
 	SCompoundWidget::CacheDesiredSize(LayoutScaleMultiplier);
 }
