@@ -1,5 +1,3 @@
-// Copyright 1998-2015 Epic Games, Inc. All Rights Reserved.
-
 #include "BitmapFontPrivatePCH.h"
 #include "SBMFontTextBlock.h"
 #include "SceneViewport.h"
@@ -135,6 +133,7 @@ void SBMFontTextBlock::Construct(const FArguments& InArgs)
 			.EnableBlending(true)
 			.ShowEffectWhenDisabled(true)
 			.IgnoreTextureAlpha(false)
+			.RenderDirectlyToWindow(true)
 		];
 
 	ViewportClient = MakeShareable(new FBMFontTextBlockViewportClient());

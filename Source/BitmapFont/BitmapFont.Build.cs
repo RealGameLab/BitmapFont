@@ -1,5 +1,3 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
-
 using UnrealBuildTool;
 
 public class BitmapFont : ModuleRules
@@ -10,25 +8,28 @@ public class BitmapFont : ModuleRules
 		PublicIncludePaths.AddRange(
 			new string[] {
 				"BitmapFont/Public",
-                // ... add public include paths required here ...
 			}
 			);
-				
-		
-		PrivateIncludePaths.AddRange(
+
+        
+
+        PrivateIncludePaths.AddRange(
 			new string[] {
 				"BitmapFont/Private",
-                // ... add other private include paths required here ...
             }
 			);
-			
-		
-		PublicDependencyModuleNames.AddRange(
+
+        PublicIncludePathModuleNames.AddRange(
+            new string[] {
+                "AssetRegistry",
+            }
+            );
+
+        PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
 				"Core",
                 "UnrealEd",
-				// ... add other public dependencies that you statically link with here ...
 			}
 			);
 			
@@ -43,7 +44,6 @@ public class BitmapFont : ModuleRules
                 "ImageWrapper",
                 "InputCore",
                 "UMG",
-				// ... add private dependencies that you statically link with here ...	
 			}
 			);
 		
@@ -51,7 +51,6 @@ public class BitmapFont : ModuleRules
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
-				// ... add any modules that your module loads dynamically here ...
 			}
 			);
 	}

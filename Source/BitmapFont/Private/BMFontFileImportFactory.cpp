@@ -1,6 +1,5 @@
 #include "BitmapFontPrivatePCH.h"
 #include "BMFontFileImportFactory.h"
-#include "Runtime/AssetRegistry/Public/AssetRegistryModule.h"
 
 DECLARE_LOG_CATEGORY_CLASS(BMFontFileImportFactory, Verbose, All);
 
@@ -46,7 +45,7 @@ bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer
 	for (FString Line : Lines)
 	{
 		TArray<FString> Sections;
-		FString(Line).ParseIntoArray(Sections, TEXT(" "));
+		Line.ParseIntoArray(Sections, TEXT(" "));
 		if (Sections.Num() <= 0)
 		{
 			continue;
@@ -57,7 +56,7 @@ bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer
 			for (int index = 1; index < Sections.Num(); index++)
 			{
 				TArray<FString> KVPair;
-				FString(Sections[index]).ParseIntoArray(KVPair, TEXT("="));
+				Sections[index].ParseIntoArray(KVPair, TEXT("="));
 				if (KVPair[0].Equals("face"))
 				{
 					Font->ImportOptions.FontName = KVPair[1];
@@ -99,7 +98,7 @@ bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer
 				{
 					// 内边距？不太确定
 					TArray<FString> Values;
-					FString(KVPair[1]).ParseIntoArray(Values, TEXT(","));
+					KVPair[1].ParseIntoArray(Values, TEXT(","));
 					if (Values.Num() == 4)
 					{
 						Font->ImportOptions.ExtendBoxTop = FCString::Atoi(*Values[0]);
@@ -112,7 +111,7 @@ bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer
 				{
 					// 外边距？不太确定
 					TArray<FString> Values;
-					FString(KVPair[1]).ParseIntoArray(Values, TEXT(","));
+					KVPair[1].ParseIntoArray(Values, TEXT(","));
 					if (Values.Num() == 2)
 					{
 						Font->ImportOptions.XPadding = FCString::Atoi(*Values[0]);
@@ -130,7 +129,7 @@ bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer
 			for (int index = 1; index < Sections.Num(); index++)
 			{
 				TArray<FString> KVPair;
-				FString(Sections[index]).ParseIntoArray(KVPair, TEXT("="));
+				Sections[index].ParseIntoArray(KVPair, TEXT("="));
 				if (KVPair[0].Equals("lineHeight"))
 				{
 				}
@@ -186,7 +185,7 @@ bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer
 			for (int index = 1; index < Sections.Num(); index++)
 			{
 				TArray<FString> KVPair;
-				FString(Sections[index]).ParseIntoArray(KVPair, TEXT("="));
+				Sections[index].ParseIntoArray(KVPair, TEXT("="));
 				if (KVPair[0].Equals("file"))
 				{
 					TextureFileNames.Add(KVPair[1].Replace(TEXT("\""), TEXT("")));
@@ -198,7 +197,7 @@ bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer
 			for (int index = 1; index < Sections.Num(); index++)
 			{
 				TArray<FString> KVPair;
-				FString(Sections[index]).ParseIntoArray(KVPair, TEXT("="));
+				Sections[index].ParseIntoArray(KVPair, TEXT("="));
 				if (KVPair[0].Equals("count"))
 				{
 					Font->NumCharacters = FCString::Atoi(*KVPair[1]);
@@ -211,7 +210,7 @@ bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer
 			for (int index = 1; index < Sections.Num(); index++)
 			{
 				TArray<FString> KVPair;
-				FString(Sections[index]).ParseIntoArray(KVPair, TEXT("="));
+				Sections[index].ParseIntoArray(KVPair, TEXT("="));
 				if (KVPair[0].Equals("id"))
 				{
 					Font->CharRemap.Add(FCString::Atoi(*KVPair[1]), Font->Characters.Num());
@@ -258,7 +257,7 @@ bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer
 			for (int index = 1; index < Sections.Num(); index++)
 			{
 				TArray<FString> KVPair;
-				FString(Sections[index]).ParseIntoArray(KVPair, TEXT("="));
+				Sections[index].ParseIntoArray(KVPair, TEXT("="));
 				if (KVPair[0].Equals("count"))
 				{
 					
@@ -270,7 +269,7 @@ bool UBMFontFileImportFactory::ImportBitmapFont(UFont* Font, const TCHAR* Buffer
 			for (int index = 1; index < Sections.Num(); index++)
 			{
 				TArray<FString> KVPair;
-				FString(Sections[index]).ParseIntoArray(KVPair, TEXT("="));
+				Sections[index].ParseIntoArray(KVPair, TEXT("="));
 				if (KVPair[0].Equals("first"))
 				{
 
@@ -361,7 +360,7 @@ EReimportResult::Type UBMFontFileImportFactory::Reimport(UObject* Obj)
 	UFont* Font = Cast<UFont>(Obj);
 	if (Font)
 	{
-		const FString &FilePath = Font->ImportOptions.CharsFilePath;
+		const FString& FilePath = Font->ImportOptions.CharsFilePath;
 		FString Buffer;
 		if (FFileHelper::LoadFileToString(Buffer, *FilePath))
 		{

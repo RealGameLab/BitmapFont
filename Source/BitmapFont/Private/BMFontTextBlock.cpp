@@ -1,6 +1,5 @@
 #include "BitmapFontPrivatePCH.h"
 #include "BMFontTextBlock.h"
-//#include "Runtime/Slate/Public/Widgets/SInvalidationPanel.h"
 
 UBMFontTextBlock::UBMFontTextBlock(class FObjectInitializer const &Initializer)
 	: Font(nullptr)
