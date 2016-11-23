@@ -16,7 +16,7 @@
 	"Modules": [
 		{
 			"Name": "BitmapFont",
-			"Type": "Developer",
+			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
 	]
