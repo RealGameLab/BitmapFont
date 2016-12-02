@@ -1,4 +1,3 @@
-#include "BitmapFontPrivatePCH.h"
 #include "SBMFontTextBlock.h"
 #include "SceneViewport.h"
 

@@ -1,4 +1,3 @@
-#include "BitmapFontPrivatePCH.h"
 #include "BMFontFileImportFactory.h"
 
 DECLARE_LOG_CATEGORY_CLASS(BMFontFileImportFactory, Verbose, All);

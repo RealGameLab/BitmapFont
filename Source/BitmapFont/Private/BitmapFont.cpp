@@ -1,5 +1,3 @@
-#include "BitmapFontPrivatePCH.h"
-
 #define LOCTEXT_NAMESPACE "FBitmapFontModule"
 
 void FBitmapFontModule::StartupModule()
