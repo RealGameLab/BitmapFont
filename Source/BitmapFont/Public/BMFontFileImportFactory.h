@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Factories/Factory.h"
+#include "EditorReimportHandler.h"
 #include "BMFontFileImportFactory.generated.h"
 
 UCLASS()

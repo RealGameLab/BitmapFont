@@ -1,3 +1,5 @@
+#include "BitmapFont.h"
+
 #define LOCTEXT_NAMESPACE "FBitmapFontModule"
 
 void FBitmapFontModule::StartupModule()

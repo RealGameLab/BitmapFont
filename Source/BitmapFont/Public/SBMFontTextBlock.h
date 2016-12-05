@@ -1,4 +1,6 @@
 #pragma once
+#include "CanvasTypes.h"
+#include "Array.h"
 
 class FBMFontTextBlockViewportClient;
 
