@@ -1,4 +1,9 @@
 #include "BMFontFileImportFactory.h"
+#include "Engine/Font.h"
+#include "Misc/FileHelper.h"
+#include "Factories/TextureFactory.h"
+#include "EditorFramework/AssetImportData.h"
+#include "AssetRegistryModule.h"
 
 DECLARE_LOG_CATEGORY_CLASS(BMFontFileImportFactory, Verbose, All);
 

@@ -1,5 +1,7 @@
 #include "SBMFontTextBlock.h"
 #include "SceneViewport.h"
+#include "CanvasItem.h"
+#include "Engine/Canvas.h"
 
 class FBMFontTextBlockViewportClient : public FViewportClient
 {

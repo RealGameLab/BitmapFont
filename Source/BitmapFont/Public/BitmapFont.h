@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ModuleManager.h"
+#include "Widgets/SViewport.h"
 
 class FBitmapFontModule : public IModuleInterface
 {
