@@ -13,10 +13,16 @@
 	"CanContainContent": false,
 	"IsBetaVersion": false,
 	"Installed": false,
+	"EnabledByDefault": true,
 	"Modules": [
 		{
 			"Name": "BitmapFont",
 			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "BitmapFontEditor",
+			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}
 	]

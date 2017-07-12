@@ -2,10 +2,10 @@ using UnrealBuildTool;
 
 public class BitmapFont : ModuleRules
 {
-	public BitmapFont(TargetInfo Target)
-	{
-		
-		PublicIncludePaths.AddRange(
+	public BitmapFont(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PrivatePCHHeaderFile = "Private/BMFontPrivatePCH.h";
+        PublicIncludePaths.AddRange(
 			new string[] {
 				"BitmapFont/Public",
 			}
@@ -21,7 +21,8 @@ public class BitmapFont : ModuleRules
 
         PublicIncludePathModuleNames.AddRange(
             new string[] {
-                "AssetRegistry",
+               // "UnrealEd",
+                "SlateCore"
             }
             );
 
@@ -29,7 +30,7 @@ public class BitmapFont : ModuleRules
 			new string[]
 			{
 				"Core",
-                "UnrealEd",
+               // "UnrealEd",
 			}
 			);
 			

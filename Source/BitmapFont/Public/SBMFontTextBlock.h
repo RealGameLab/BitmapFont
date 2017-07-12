@@ -1,10 +1,11 @@
 #pragma once
 #include "CanvasTypes.h"
 #include "Array.h"
+#include "Widgets/SCompoundWidget.h"
 
 class FBMFontTextBlockViewportClient;
 
-class SBMFontTextBlock : public SCompoundWidget//, public FGCObject
+class SBMFontTextBlock : public SCompoundWidget, public FGCObject
 {
 	friend class FBMFontTextBlockViewportClient;
 
@@ -151,6 +152,14 @@ public:
 	virtual FVector2D ComputeDesiredSize(float LayoutScaleMultiplier) const override;
 	// End of SWidget interface
 
+	virtual void AddReferencedObjects(FReferenceCollector& Collector) override
+	{
+		const UFont* FontPtr = Font.Get(nullptr);
+		if (FontPtr)
+		{
+			Collector.AddReferencedObject(FontPtr);
+		}
+	}
 private:
 	/** Wrapping cache for this text block */
 	struct FWrappingCache

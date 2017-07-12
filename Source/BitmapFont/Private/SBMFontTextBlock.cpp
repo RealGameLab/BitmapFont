@@ -3,7 +3,7 @@
 #include "CanvasItem.h"
 #include "Engine/Canvas.h"
 
-class FBMFontTextBlockViewportClient : public FViewportClient
+class FBMFontTextBlockViewportClient : public FViewportClient, public FGCObject
 {
 public:
 	FBMFontTextBlockViewportClient();
@@ -11,7 +11,11 @@ public:
 	void PrepareToDraw(FViewport* Viewport, const TArray<FWrappedStringElement> &InText, const UFont *InFont, const FLinearColor &InColor, const FVector2D &InShadowOffset, const FLinearColor &InShadowColor, const FMargin &InMargin, float InScale, float InDesiredLineHeight);
 
 	virtual void Draw(FViewport* Viewport, FCanvas* Canvas) override;
-
+	
+	void AddReferencedObjects(FReferenceCollector& Collector)
+	{
+		Collector.AddReferencedObject(Font);
+	}
 private:
 	TArray<FWrappedStringElement> Text;
 	const UFont* Font;
@@ -127,6 +131,7 @@ void SBMFontTextBlock::Construct(const FArguments& InArgs)
 	WidgetCachedSize = FVector2D::ZeroVector;
 
 	TSharedPtr<SViewport> ViewportWidget;
+	
 	ChildSlot
 		[
 			SAssignNew(ViewportWidget, SViewport)
@@ -134,7 +139,6 @@ void SBMFontTextBlock::Construct(const FArguments& InArgs)
 			.EnableBlending(true)
 			.ShowEffectWhenDisabled(true)
 			.IgnoreTextureAlpha(false)
-			.RenderDirectlyToWindow(true)
 		];
 
 	ViewportClient = MakeShareable(new FBMFontTextBlockViewportClient());
@@ -148,7 +152,7 @@ int32 SBMFontTextBlock::OnPaint(const FPaintArgs& Args, const FGeometry& Allotte
 	WidgetCachedSize = AllottedGeometry.Size;
 
 	const bool bEnabled = ShouldBeEnabled(bParentEnabled);
-	const ESlateDrawEffect::Type DrawEffects = bEnabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;
+	const ESlateDrawEffect DrawEffects = bEnabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;
 
 	ViewportClient->PrepareToDraw(Viewport.Get(), 
 		WrappingCache.WrappedText, 
@@ -159,8 +163,8 @@ int32 SBMFontTextBlock::OnPaint(const FPaintArgs& Args, const FGeometry& Allotte
 		Margin.Get(FMargin()), 
 		AllottedGeometry.Scale,
 		DesiredLineHeight.Get(0.f));
-
-	LayerId = SCompoundWidget::OnPaint(Args, AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bEnabled);
+	
+		LayerId = SCompoundWidget::OnPaint(Args, AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bEnabled);
 
 	return LayerId;
 }
@@ -191,11 +195,3 @@ FVector2D SBMFontTextBlock::ComputeDesiredSize(float LayoutScaleMultiplier) cons
 	return WrappedSize + MarginSize + ShadowSize;
 }
 
-// void SBMFontTextBlock::AddReferencedObjects(FReferenceCollector& Collector)
-// {
-// 	const UFont* FontPtr = Font.Get(nullptr);
-// 	if (FontPtr)
-// 	{
-// 		Collector.AddReferencedObject(FontPtr);
-// 	}
-// }
