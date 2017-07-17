@@ -62,7 +62,7 @@ void FBMFontTextBlockViewportClient::Draw(FViewport* Viewport, FCanvas* Canvas)
 		{
 			FCanvasTextItem TextItem(CanvasPos, FText::FromString(Line.Value), Font, Color);
 			TextItem.EnableShadow(ShadowColor, ShadowOffset);
-			TextItem.BlendMode = SE_BLEND_AlphaBlend;
+			TextItem.BlendMode = SE_BLEND_Translucent;
 			TextItem.Scale = Scale;
 
 			Canvas->DrawItem(TextItem);
@@ -135,7 +135,7 @@ void SBMFontTextBlock::Construct(const FArguments& InArgs)
 	ChildSlot
 		[
 			SAssignNew(ViewportWidget, SViewport)
-			.EnableGammaCorrection(true)
+			.EnableGammaCorrection(false)
 			.EnableBlending(true)
 			.ShowEffectWhenDisabled(true)
 			.IgnoreTextureAlpha(false)
